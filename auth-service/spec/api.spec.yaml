@@ -1,0 +1,532 @@
+openapi: 3.0.3
+info:
+  title: Authentication Service
+  version: 1.0.0
+  contact:
+    name: Dimakatso
+    email: dimakatsomm@icloud.com
+servers:
+  - url: /
+    description: Self
+  - url: http://localhost:3000
+    description: Local
+tags:
+  - name: auth
+    description: User authentication service
+paths:
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: User login
+      description: User login using email and password
+      operationId: loginUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialsDto'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    default: true
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AppUser'
+                      token:
+                        type: string
+                        format: JWT
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: User registration
+      description: User registration using user details
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserDto'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '409':
+          description: Conflicted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+  /auth/verify:
+    get:
+      tags:
+        - auth
+      summary: User verification
+      description: Verify user account using a token
+      operationId: verifyUser
+      parameters:
+        - in: query
+          name: token
+          schema:
+            type: string
+          description: The token to verify user
+          required: true
+      responses:
+        '208':
+          description: Already reported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '302':
+          description: Redirect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '409':
+          description: Conflicted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+  /auth/resend-verification:
+    post:
+      tags:
+        - auth
+      summary: User re-verification
+      description: Resends user verification email
+      operationId: resendVerification
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+            format: email
+          description: The email of user that has to verify account
+          required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '208':
+          description: Already reported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+  /auth/forgot-password:
+    post:
+      tags:
+        - auth
+      summary: User forgot password
+      description: Send user email to reset password
+      operationId: forgotPassword
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+            format: email
+          description: The email of user that has to reset password
+          required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+  /auth/reset-password:
+    put:
+      tags:
+        - auth
+      summary: User reset password
+      description: Resets user password
+      operationId: resetPassword
+      parameters:
+        - in: query
+          name: token
+          schema:
+            type: string
+          description: The token to verify user
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordDto'
+      responses:
+        '208':
+          description: Already reported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '302':
+          description: Redirect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+  /auth/change-password:
+    put:
+      security:
+        - BearerAuth: []
+      tags:
+        - auth
+      summary: User changes password
+      description: Changes user password
+      operationId: changePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDto'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUser'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+  /auth/logout:
+    post:
+      security:
+        - BearerAuth: []
+      tags:
+        - auth
+      summary: User logout
+      description: Logout user from session
+      operationId: userLogout
+      responses:
+        '302':
+          description: Redirect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDto'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+
+#components
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT   
+  schemas:
+    # Requests objects
+    CredentialsDto:
+      type: object
+      anyOf:
+        - required: [emailAddress, username]
+      properties:
+        emailAddress:
+          type: string
+          format: email
+        username:
+          type: string
+          minLength: 4
+        password:
+          type: string
+          format: password
+          minLength: 8
+        totp:
+          type: string
+          format: number
+          minLength: 6
+          maxLength: 6
+      required: [password, totp]
+    NewUserDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        emailAddress:
+          type: string
+          format: email
+        username:
+          type: string
+          minLength: 4
+        password:
+          type: string
+          format: password
+          minLength: 8
+      required: [firstName, lastName, emailAddress, password]
+    ResetPasswordDto:
+      type: object
+      properties:
+        password:
+          type: string
+          format: password
+          minLength: 8
+        totp:
+          type: string
+          format: number
+          minLength: 6
+          maxLength: 6
+      required: [password, totp]
+    ChangePasswordDto:
+      type: object
+      properties:
+        emailAddress:
+          type: string
+          format: email
+        oldPassword:
+          type: string
+          format: password
+          minLength: 8
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+        totp:
+          type: string
+          format: number
+          minLength: 6
+          maxLength: 6
+      required: [emailAddress, oldPassword, newPassword, totp]
+      
+    # Response objects
+    AppUser:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        emailAddress:
+          type: string
+          format: email
+      required: [firstName, lastName, emailAddress]
+    SuccessDto:
+      type: object
+      properties:
+        status:
+          type: boolean
+          default: true
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+    ErrorDto:
+      type: object
+      properties:
+        status:
+          type: boolean
+          default: false
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            error:
+              type: string
+              
